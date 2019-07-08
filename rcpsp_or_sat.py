@@ -5,15 +5,17 @@ from __future__ import print_function
 import argparse
 import collections
 import time
+import os
 
 from google.protobuf import text_format
 from ortools.data import pywraprcpsp
 from ortools.sat.python import cp_model
 
+
 PARSER = argparse.ArgumentParser()
 PARSER.add_argument(
         '--input',
-        default="data/rcpsp/single_mode/j301_1.sm",
+        default=os.path.dirname(__file__)+"/data/rcpsp/single_mode/j301_1.sm",
         help='Input file to parse and solve.')
 PARSER.add_argument(
         '--output_proto',
@@ -211,7 +213,6 @@ def main(args):
     rcpsp_parser = pywraprcpsp.RcpspParser()
     rcpsp_parser.ParseFile(args.input)
     print(rcpsp_parser.Problem())
-    exit(0)
     solve_rcpsp(rcpsp_parser.Problem(), args.output_proto, args.params)
 
 
