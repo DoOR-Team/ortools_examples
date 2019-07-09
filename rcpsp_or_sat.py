@@ -212,7 +212,7 @@ def solve_rcpsp(problem, proto_file, params):
 def main(args):
     rcpsp_parser = pywraprcpsp.RcpspParser()
     rcpsp_parser.ParseFile(args.input)
-    print(rcpsp_parser.Problem())
+    # print(rcpsp_parser.Problem())
     solve_rcpsp(rcpsp_parser.Problem(), args.output_proto, args.params)
 
 

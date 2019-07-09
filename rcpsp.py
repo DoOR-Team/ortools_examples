@@ -8,7 +8,7 @@ file = 'data2(2).csv'
 data = pd.read_csv(file)
 
 AO = []
-CAPACITIES = [10, 28, 38, 33]
+CAPACITIES = [10, 6, 6, 10]
 CAPACITIES_NAME = ['room', 'stru',
                    'mc',
                    'sp']
@@ -49,12 +49,12 @@ for w in range(9999):
 
 tasks = [mdl.interval_var(name=AO[i]['name'], size=AO[i]['duration']) for i in
          range(NB_TASKS)]
-# #
-for t in range(NB_TASKS):
-# #     加上表示工作时间可断开，否则表示必须连续
-    tasks[t].set_intensity(workhour)
-    mdl.add(mdl.forbid_start(tasks[t], workhour))
-    mdl.add(mdl.forbid_end(tasks[t], workhour))
+#
+# for t in range(NB_TASKS):
+# # #     加上表示工作时间可断开，否则表示必须连续
+# #     tasks[t].set_intensity(workhour)
+#     mdl.add(mdl.forbid_start(tasks[t], workhour))
+#     mdl.add(mdl.forbid_end(tasks[t], workhour))
 
 # Add precedence constraints
 for t in range(NB_TASKS):
