@@ -1,30 +1,40 @@
 import docplex.cp.utils_visu as visu
 import pandas as pd
+from ortools.constraint_solver import routing_enums_pb2
 from ortools.sat.python import cp_model
 from docplex.cp.model import CpoStepFunction, INTERVAL_MIN, \
     INTERVAL_MAX
 import time
 
-file = 'data2(2).csv'
+file = 'data3.csv'
 
 data = pd.read_csv(file)
 
 AO = []
-CAPACITIES = [10, 6, 6, 10]
-CAPACITIES_NAME = ['room', 'stru',
-                   'mc',
-                   'sp']
+
+cap = pd.read_csv('res.csv', encoding='gbk')
+
+CAPACITIES = [c[2] for c in cap.values]
+CAPACITIES_NAME = [c[1] for c in cap.values]
+
+print(CAPACITIES)
+print(CAPACITIES_NAME)
+print(data.keys())
 
 for d in data.values:
     aono = str(d[0])
-    name = 'T' + str(d[2])
-    duration = d[4]
-    nexts = d[1]
+    name = 'T' + str(d[5])
+    duration = d[1]
+    nexts = d[2]
     if nexts == nexts:
         nexts = [int(n) for n in nexts.split(',')]
     else:
         nexts = []
-    cap = [int(n) for n in d[3].split(',')]
+    cap = [int(n) for n in d[8].split(',')]
+    for i in range(len(CAPACITIES)):
+        if cap[i] > CAPACITIES[i]:
+            print(cap, i)
+            exit(1)
     AO.append({
         'aono': aono,
         'name': name,
@@ -47,7 +57,7 @@ class CPTask(object):
         self.size = model.NewIntVar(0, horizon, 'size_%s' % name)
         self.interval = model.NewIntervalVar(self.start, self.size, self.end,
                                              'inverval_%s' % name)
-        model.Add(self.size == size)
+        model.Add(self.size >= size)
 
     def get_name(self):
         return self.name
@@ -104,6 +114,9 @@ for r in range(NB_RESOURCES):
 makespan = model.NewIntVar(0, horizon, 'makespan')
 for task in tasks:
     model.Add(makespan >= task.end)
+#
+# model.AddDecisionStrategy([makespan], cp_model.CHOOSE_FIRST,
+#                               cp_model.SELECT_LOWER_HALF)
 
 model.Minimize(makespan)
 # -----------------------------------------------------------------------------
@@ -114,11 +127,15 @@ model.Minimize(makespan)
 print("Solving model....")
 solver = cp_model.CpSolver()
 
-solver.parameters.max_time_in_seconds = 100
+solver.parameters.max_time_in_seconds = 10000
+# 54s
 solver.parameters.search_branching = cp_model.FIXED_SEARCH
+# 22s 但是得不到最优解
+# solver.parameters.search_branching = cp_model.PORTFOLIO_SEARCH
+# solver.parameters.search_branching = cp_model.AUTOMATIC_SEARCH
+# solver.parameters.search_branching = cp_model.LP_SEARCH
 solver.parameters.num_search_workers = 16
 solver.parameters.log_search_progress = True
-
 
 solution_printer = SolutionPrinter(tasks)
 status = solver.SolveWithSolutionCallback(model, solution_printer)
@@ -140,9 +157,9 @@ if visu.is_visu_enabled():
         start = solver.Value(tasks[i].start)
         end = solver.Value(tasks[i].end)
         visu.interval(start, end, i, tasks[i].get_name())
-    for j in range(NB_RESOURCES):
-        visu.panel(CAPACITIES_NAME[j])
-        visu.function(segments=[(INTERVAL_MIN, INTERVAL_MAX, CAPACITIES[j])],
-                      style='area', color='lightgrey')
-        visu.function(segments=load[j], style='area', color=j)
+    # for j in range(NB_RESOURCES):
+    #     visu.panel(CAPACITIES_NAME[j])
+    #     visu.function(segments=[(INTERVAL_MIN, INTERVAL_MAX, CAPACITIES[j])],
+    #                   style='area', color='lightgrey')
+    #     visu.function(segments=load[j], style='area', color=j)
     visu.show()
