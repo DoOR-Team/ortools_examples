@@ -30,21 +30,21 @@ class NQueenSolutionPrinter(cp_model.CpSolverSolutionCallback):
         return self.__solution_count
     
     def on_solution_callback(self):
-        current_time = time.time()
-        print('Solution %i, time = %f s' % (self.__solution_count,
-                                            current_time - self.__start_time))
+        # current_time = time.time()
+        # print('Solution %i, time = %f s' % (self.__solution_count,
+        #                                     current_time - self.__start_time))
         self.__solution_count += 1
-
-        all_queens = range(len(self.__queens))
-        for i in all_queens:
-            for j in all_queens:
-                if self.Value(self.__queens[j]) == i:
-                    # There is a queen in column j, row i.
-                    print('Q', end=' ')
-                else:
-                    print('_', end=' ')
-            print()
-        print()
+        #
+        # all_queens = range(len(self.__queens))
+        # for i in all_queens:
+        #     for j in all_queens:
+        #         if self.Value(self.__queens[j]) == i:
+        #             # There is a queen in column j, row i.
+        #             print('Q', end=' ')
+        #         else:
+        #             print('_', end=' ')
+        #     print()
+        # print()
         pass
 
 
@@ -85,10 +85,10 @@ def main(board_size):
     solution_printer = NQueenSolutionPrinter(queens)
     # 不定义目标，就可以进行SearchForAllSolution
     # 如果定义目标，必须用SolveWithSolutionCallback
-    # status = solver.SearchForAllSolutions(model, solution_printer)
-    model.Minimize(sum([queens[0], queens[2], queens[4]]))
-    status = solver.SolveWithSolutionCallback(model, solution_printer)
-    
+    status = solver.SearchForAllSolutions(model, solution_printer)
+    # model.Minimize(sum([queens[0], queens[2], queens[4]]))
+    # status = solver.SolveWithSolutionCallback(model, solution_printer)
+    print(solution_printer.solution_count())
     print()
     print('Statistics')
     print('  - conflicts       : %i' % solver.NumConflicts())
@@ -98,7 +98,7 @@ def main(board_size):
 
 
 # By default, solve the 8x8 problem.
-board_size = 16
+board_size = 11
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:

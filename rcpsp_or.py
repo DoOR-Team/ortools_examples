@@ -127,7 +127,7 @@ model.Minimize(makespan)
 print("Solving model....")
 solver = cp_model.CpSolver()
 
-solver.parameters.max_time_in_seconds = 10000
+solver.parameters.max_time_in_seconds = 100
 # 54s
 solver.parameters.search_branching = cp_model.FIXED_SEARCH
 # 22s 但是得不到最优解
@@ -135,7 +135,7 @@ solver.parameters.search_branching = cp_model.FIXED_SEARCH
 # solver.parameters.search_branching = cp_model.AUTOMATIC_SEARCH
 # solver.parameters.search_branching = cp_model.LP_SEARCH
 solver.parameters.num_search_workers = 16
-solver.parameters.log_search_progress = True
+solver.parameters.log_search_progress = False
 
 solution_printer = SolutionPrinter(tasks)
 status = solver.SolveWithSolutionCallback(model, solution_printer)

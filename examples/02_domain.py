@@ -44,7 +44,7 @@ def main():
     # 上面和下面等价
     var2 = model.NewIntVarFromDomain(Domain.FromFlatIntervals([1, 2, 4, 6]),
                                      'var2')
-    
+
     # domain的定义方式
     
     # 定义线性约束

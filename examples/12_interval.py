@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from ortools.sat import sat_parameters_pb2
 from ortools.sat.python import cp_model
 import time
 
@@ -96,7 +97,15 @@ def Interval():
     model.Add(task3_r_end <= end3)
 
     resources_tasks = [task1_r_inverval, task3_r_inverval]
-    model.AddCumulative(resources_tasks, [2, 2], 3)
+    resources_use = [model.NewIntVar(0, horizon, 't1_r_use'),
+                     model.NewIntVar(0, horizon, 't3_r_use')]
+    
+    # 可以定义对某资源的使用
+    model.Add(sum(resources_use) >= 4)
+    model.AddCumulative(resources_tasks, resources_use, 3)
+    # model.AddCumulative(resources_tasks, [2,2], 3)
+    
+    
     
     # 再加一个场景，是对资源的使用存在or的情况，需要借助bool变量
     # 假设有2种资源，task1需要资源1 2个单位，或者需要资源2 2个单位，task3需要资源2 2个单位，每个资源3个单位
@@ -136,6 +145,11 @@ def Interval():
     
     # Solves and prints out the solution.
     solver = cp_model.CpSolver()
+    solver.parameters.search_branching = sat_parameters_pb2.SatParameters.PORTFOLIO_WITH_QUICK_RESTART_SEARCH
+    solver.parameters.max_time_in_seconds = 10000
+    solver.parameters.log_search_progress = True
+    solver.parameters.num_search_workers = 16
+    
     solution_printer = SolutionPrinter([start1, end1, start2, end2, start3,
                                         end3,
                                         # task1_resource_bool[0],
